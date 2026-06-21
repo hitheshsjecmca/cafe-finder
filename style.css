@@ -1,10 +1,115 @@
-body {
-  font-family: Arial;
-  text-align: center;
+body{
+    background:red;
 }
 
-#map {
-  height: 500px;
-  width: 100%;
-  margin-top: 10px;
+*{
+    margin:0;
+    padding:0;
+    box-sizing:border-box;
+    font-family:Arial,sans-serif;
+}
+
+body{
+    height:100vh;
+    overflow:hidden;
+}
+
+/* NAVBAR */
+
+.navbar{
+    height:70px;
+
+    display:flex;
+    justify-content:space-between;
+    align-items:center;
+
+    padding:0 20px;
+
+    background:#3E2723;
+    color:white;
+}
+
+.logo{
+    font-size:24px;
+    font-weight:bold;
+}
+
+.search-box{
+    width:40%;
+
+    padding:10px;
+
+    border:none;
+    border-radius:10px;
+}
+
+.login-btn{
+    padding:10px 20px;
+
+    border:none;
+    border-radius:10px;
+
+    cursor:pointer;
+}
+
+/* MAIN */
+
+.main-container{
+    display:flex;
+
+    height:calc(100vh - 70px);
+}
+
+/* SIDEBAR */
+
+.sidebar{
+    width:350px;
+
+    background:#f5f5f5;
+
+    overflow-y:auto;
+
+    border-right:1px solid #ddd;
+}
+
+.filters{
+    padding:20px;
+}
+
+.filters button{
+    margin:5px;
+    padding:8px 15px;
+
+    border:none;
+
+    border-radius:20px;
+
+    cursor:pointer;
+}
+
+/* CARDS */
+
+.cafe-card{
+    background:white;
+
+    margin:15px;
+    padding:15px;
+
+    border-radius:12px;
+
+    box-shadow:0 2px 10px rgba(0,0,0,0.1);
+
+    cursor:pointer;
+
+    transition:0.3s;
+}
+
+.cafe-card:hover{
+    transform:translateY(-3px);
+}
+
+/* MAP */
+
+#map{
+    flex:1;
 }

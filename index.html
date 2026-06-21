@@ -1,6 +1,7 @@
 <!DOCTYPE html>
 <html>
 <head>
+  <link rel="stylesheet" href="style.css">
   <link href="https://unpkg.com/maplibre-gl@3.x/dist/maplibre-gl.css" rel="stylesheet">
 
   <style>
@@ -15,11 +16,43 @@
 </head>
 <body>
 
-<div id="map"></div>
+    <nav class="navbar">
+        <div class="logo">☕ CafeFinder</div>
 
-<script src="https://unpkg.com/maplibre-gl@3.x/dist/maplibre-gl.js"></script>
-<script src="config.js"></script>
-<script src="script.js"></script>
+        <input
+        type="text"
+        id="searchBox"
+        placeholder="Search cafes..."
+        class="search-box">
+
+        <button class="login-btn">Login</button>
+    </nav>
+
+    <div class="main-container">
+
+        <div class="sidebar">
+
+            <div class="filters">
+                <h3>Filters</h3>
+
+                <button>All</button>
+                <button>Coffee</button>
+                <button>Bakery</button>
+            </div>
+
+            <div class="cafe-list" id="cafeList">
+            </div>
+
+        </div>
+
+        <div id="map"></div>
+
+    </div>
+
+    <script src="https://unpkg.com/maplibre-gl@3.x/dist/maplibre-gl.js"></script>
+
+    <script src="config.js"></script>
+    <script src="script.js"></script>
 
 </body>
 </html>
