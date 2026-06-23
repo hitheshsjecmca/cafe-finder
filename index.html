@@ -25,6 +25,13 @@
           placeholder="Search cafes..."
           class="search-box">
 
+          <button id="favoritesBtn">
+    ❤️ Favorites
+</button>
+
+<button id="nearMeBtn">
+    📍 Near Me
+</button>
       <button id="searchBtn">Search</button>
 
         <button class="login-btn">Login</button>
@@ -42,7 +49,11 @@
                 <button>Bakery</button>
             </div>
 
-            <div class="cafe-list" id="cafeList">
+            <div class="cafe-list" id="cafeList"></div>
+
+            <div id="detailsPanel" class="details-panel">
+                <h2>Select a Cafe</h2>
+                <p>Click a cafe to see details.</p>
             </div>
 
         </div>

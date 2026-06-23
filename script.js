@@ -1,3 +1,6 @@
+let userLat = null;
+let userLng = null;
+
 const cafes = [
   {
     id: 1,
@@ -41,17 +44,26 @@ map.addControl(new maplibregl.NavigationControl(), "top-left");
 
 
 if (navigator.geolocation) {
+
     console.log("Geolocation supported");
 
     navigator.geolocation.getCurrentPosition(
+
         (position) => {
+
             console.log("Location found!");
+            console.log("Latitude:", position.coords.latitude);
+            console.log("Longitude:", position.coords.longitude);
 
             const userLocation = [
                 position.coords.longitude,
                 position.coords.latitude
             ];
 
+            userLng = position.coords.longitude;
+            userLat = position.coords.latitude;
+
+            console.log("Saved:", userLat, userLng);
             console.log(userLocation);
 
             map.flyTo({
@@ -59,15 +71,22 @@ if (navigator.geolocation) {
                 zoom: 15
             });
 
-            new maplibregl.Marker({ color: "red" })
+            new maplibregl.Marker({
+                color: "red"
+            })
                 .setLngLat(userLocation)
                 .addTo(map);
+
         },
 
         (error) => {
+
             console.error("Location Error:", error);
+
         }
+
     );
+
 }
 
 
@@ -160,8 +179,8 @@ async function searchRealCafes() {
                 QueryText: keyword,
 
                 BiasPosition: [
-                    77.5946,
-                    12.9716
+                    userLng,
+                    userLat
                 ]
             })
             }
@@ -191,6 +210,62 @@ async function searchRealCafes() {
 document
 .getElementById("searchBtn")
 .addEventListener("click", searchRealCafes);
+
+
+async function findNearbyCafes() {
+
+    if(userLat === null || userLng === null) {
+
+        alert("Location not available");
+
+        return;
+    }
+
+    try {
+
+        const response = await fetch(
+            `https://places.geo.ap-south-1.amazonaws.com/v2/search-text?key=${API_KEY}`,
+            {
+                method: "POST",
+
+                headers: {
+                    "Content-Type": "application/json"
+                },
+
+                body: JSON.stringify({
+
+                    QueryText: "cafe",
+
+                    BiasPosition: [
+                        userLng,
+                        userLat
+                    ]
+                })
+            }
+        );
+
+        const data = await response.json();
+
+        displaySearchResults(
+            data.ResultItems
+        );
+
+    }
+
+    catch(error) {
+
+        console.error(error);
+
+    }
+}
+
+document
+.getElementById("nearMeBtn")
+.addEventListener(
+    "click",
+    findNearbyCafes
+);
+
 
 
 
@@ -238,15 +313,23 @@ function displaySearchResults(results) {
         const address = place.Address?.Label || "No address available";
 
         cafeList.innerHTML += `
-            <div class="cafe-card"
-                onclick="showAwsCafe(${lng}, ${lat}, '${title}')">
+    <div class="cafe-card"
+        onclick="
+            showAwsCafe(${lng}, ${lat}, '${title}');
+            showCafeDetails(
+                '${title}',
+                '${address}',
+                '${distance}',
+                '${place.PlaceId}'
+            );
+        ">
 
-                <h4>${title}</h4>
-                <p>📍 ${distance}m away</p>
-                <p>${address}</p>
+        <h4>${title}</h4>
+        <p>📍 ${distance}m away</p>
+        <p>${address}</p>
 
-            </div>
-        `;
+    </div>
+`;
 
         const marker = new maplibregl.Marker({
             color: "#6F4E37"
@@ -284,3 +367,100 @@ function showAwsCafe(lng, lat, name) {
 
     awsMarker.togglePopup();
 }
+
+
+function showCafeDetails(
+    title,
+    address,
+    distance,
+    placeId
+) {
+
+    document.getElementById("detailsPanel").innerHTML = `
+        <h2>${title}</h2>
+
+        <p><strong>Address:</strong><br>${address}</p>
+
+        <p><strong>Distance:</strong> ${distance}m</p>
+
+        <button onclick="saveFavorite(
+            '${title}',
+            '${address}'
+        )">
+            ❤️ Save Favorite
+        </button>
+    `;
+}
+
+
+function saveFavorite(title, address) {
+
+    const favorites =
+        JSON.parse(
+            localStorage.getItem("favorites")
+        ) || [];
+
+    const exists = favorites.find(
+        fav => fav.title === title
+    );
+
+    if(exists){
+        alert("Already saved!");
+        return;
+    }
+
+    favorites.push({
+        title,
+        address
+    });
+
+    localStorage.setItem(
+        "favorites",
+        JSON.stringify(favorites)
+    );
+
+    alert("Favorite Saved ❤️");
+}
+
+
+
+function showFavorites() {
+
+    const favorites =
+        JSON.parse(
+            localStorage.getItem("favorites")
+        ) || [];
+
+    const cafeList =
+        document.getElementById("cafeList");
+
+    cafeList.innerHTML = "";
+
+    if(favorites.length === 0){
+        cafeList.innerHTML =
+            "<h3>No favorites yet</h3>";
+        return;
+    }
+
+    favorites.forEach(fav => {
+
+        cafeList.innerHTML += `
+            <div class="cafe-card">
+
+                <h4>${fav.title}</h4>
+
+                <p>${fav.address}</p>
+
+            </div>
+        `;
+
+    });
+}
+
+
+document
+.getElementById("favoritesBtn")
+.addEventListener(
+    "click",
+    showFavorites
+);
