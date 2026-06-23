@@ -141,3 +141,146 @@ searchBox.addEventListener("input", () => {
 
     renderCafes(filtered);
 });
+
+
+async function searchRealCafes() {
+
+    const keyword = document.getElementById("searchBox").value;
+
+    try {
+
+        const response = await fetch(
+            `https://places.geo.ap-south-1.amazonaws.com/v2/search-text?key=${API_KEY}`,
+            {
+                method: "POST",
+                headers: {
+                    "Content-Type": "application/json"
+                },
+                body: JSON.stringify({
+                QueryText: keyword,
+
+                BiasPosition: [
+                    77.5946,
+                    12.9716
+                ]
+            })
+            }
+        );
+
+        console.log("Status:", response.status);
+
+        const data = await response.json();
+
+        console.log(
+            "ResultItems count:",
+            data.ResultItems ? data.ResultItems.length : 0
+        );
+
+        console.log("Response:", data);
+
+        displaySearchResults(data.ResultItems);
+
+    } catch(error) {
+
+        console.error(error);
+
+    }
+}
+
+
+document
+.getElementById("searchBtn")
+.addEventListener("click", searchRealCafes);
+
+
+
+
+
+
+let awsMarker = null;
+let searchMarkers = [];
+
+function displaySearchResults(results) {
+
+    console.log("displaySearchResults called");
+
+    console.log("Results:", results);
+
+    const cafeList = document.getElementById("cafeList");
+
+    cafeList.innerHTML = "";
+
+    // Remove old markers
+    searchMarkers.forEach(marker => marker.remove());
+    searchMarkers = [];
+    
+    if (!results || results.length === 0) {
+    cafeList.innerHTML = "<h3>No cafes found</h3>";
+    return;
+}
+    results.forEach(place => {
+
+        // Skip invalid places
+        if (
+            !place.Position ||
+            place.Position[0] == null ||
+            place.Position[1] == null
+        ) {
+            console.log("Skipped place:", place);
+            return;
+        }
+
+        const lng = place.Position[0];
+        const lat = place.Position[1];
+
+        const title = place.Title || "Unknown Cafe";
+        const distance = place.Distance ?? "N/A";
+        const address = place.Address?.Label || "No address available";
+
+        cafeList.innerHTML += `
+            <div class="cafe-card"
+                onclick="showAwsCafe(${lng}, ${lat}, '${title}')">
+
+                <h4>${title}</h4>
+                <p>📍 ${distance}m away</p>
+                <p>${address}</p>
+
+            </div>
+        `;
+
+        const marker = new maplibregl.Marker({
+            color: "#6F4E37"
+        })
+        .setLngLat([lng, lat])
+        .addTo(map);
+
+        searchMarkers.push(marker);
+    });
+}
+
+
+function showAwsCafe(lng, lat, name) {
+
+    map.flyTo({
+        center: [lng, lat],
+        zoom: 17
+    });
+
+    // Remove previously selected marker
+    if (awsMarker) {
+        awsMarker.remove();
+    }
+
+    awsMarker = new maplibregl.Marker({
+        color: "red"
+    })
+    .setLngLat([lng, lat])
+    .setPopup(
+        new maplibregl.Popup().setHTML(`
+            <h3>${name}</h3>
+        `)
+    )
+    .addTo(map);
+
+    awsMarker.togglePopup();
+}
