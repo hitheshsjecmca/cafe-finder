@@ -1,5 +1,9 @@
 # ☕ CafeFinder
 
+![JavaScript](https://img.shields.io/badge/JavaScript-ES6-yellow)
+![HTML](https://img.shields.io/badge/HTML5-orange)
+![CSS](https://img.shields.io/badge/CSS3-blue)
+![AWS](https://img.shields.io/badge/AWS-Location%20Service-FF9900)
 CafeFinder is a web application that helps users discover nearby cafes using interactive maps and location-based search. It integrates **Amazon Location Service** to provide real-time cafe search, map visualization, and location-aware recommendations.
 
 ---
